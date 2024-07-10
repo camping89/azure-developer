@@ -1,0 +1,10 @@
+az storage account create \
+ --name storageaccountvunt39 \
+ --resource-group rg-udacity-azure-developer \
+ --location southeastasia
+
+ az storage container create \
+ --account-name storageaccountvunt39 \
+ --name images \
+ --auth-mode login \
+ --public-access container

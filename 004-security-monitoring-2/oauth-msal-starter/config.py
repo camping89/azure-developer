@@ -1,7 +1,7 @@
 class Config(object):
     # In a production app, store this instead in KeyVault or an environment variable
     # TODO: Enter your client secret from Azure AD below
-    CLIENT_SECRET = "uzh8Q~lZy23NgadoHvt3YAMks6mY9OWSNwV_Rces" 
+    CLIENT_SECRET = "app registration > client secret" 
 
     AUTHORITY = "https://login.microsoftonline.com/common"  # For multi-tenant app
     # AUTHORITY = "https://login.microsoftonline.com/Enter_the_Tenant_Name_Here"

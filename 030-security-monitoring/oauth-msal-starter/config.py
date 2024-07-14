@@ -1,13 +1,13 @@
 class Config(object):
     # In a production app, store this instead in KeyVault or an environment variable
     # TODO: Enter your client secret from Azure AD below
-    CLIENT_SECRET = "app registration > client secret" 
+    CLIENT_SECRET = "client secret" 
 
     AUTHORITY = "https://login.microsoftonline.com/common"  # For multi-tenant app
     # AUTHORITY = "https://login.microsoftonline.com/Enter_the_Tenant_Name_Here"
 
     # TODO: Enter your application client ID here
-    CLIENT_ID = "3e76f35c-2119-4220-9ad4-a959ee3aa793"
+    CLIENT_ID = "4e9f8d46-ac34-4bcc-8b71-805a315d4861"
 
     # TODO: Enter the redirect path you want to use for OAuth requests
     #   Note that this will be the end of the URI entered back in Azure AD

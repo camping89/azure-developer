@@ -14,7 +14,7 @@
     <div class = "container">
       <div class="header box">For Authenticated User Eyes Only</div>
       <div class="content box">
-        <p>Welcome to the site!</p><br>
+        <p>Welcome to the site, {{ email }}!</p><br>
         <a href="{{ url_for('logout') }}">Logout</a></li>
       </div>
       <div class="footer box">Copyright 2020 Udacious Student</div>

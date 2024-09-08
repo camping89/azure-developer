@@ -2,3 +2,4 @@ Flask
 Flask-Login
 Flask-Session
 msal
+python-dotenv

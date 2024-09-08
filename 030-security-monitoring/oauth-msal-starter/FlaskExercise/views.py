@@ -6,13 +6,13 @@ from config import Config
 from FlaskExercise import app
 from FlaskExercise.models import User
 
+import requests
 
 @app.route('/')
 @app.route('/home')
 @login_required
 def home():
-    return render_template('index.html')
-
+    return render_template('index.html', email=session['user']['preferred_username'])
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -21,13 +21,15 @@ def login():
     session['state'] = str(uuid.uuid4())
     # Note: Below will return None as an auth_url until you implement the function
     auth_url = _build_auth_url(scopes=Config.SCOPE, state=session['state'])
-    return render_template('login.html', title='Sign In', auth_url=auth_url)
+    return render_template('login.html',
+                           title=f'Sign In at {get_public_ip()}',
+                           auth_url=auth_url)
 
 
 @app.route('/logout')
 def logout():
-    logout_user() # Log out of Flask session
-    if session.get('user'): # Used MS Login
+    logout_user()  # Log out of Flask session
+    if session.get('user'):  # Used MS Login
         # Wipe out user and its token cache from session
         session.clear()
         return redirect(
@@ -77,9 +79,10 @@ def _save_cache(cache):
 
 
 def _build_msal_app(cache=None, authority=None):
-    return msal.ConfidentialClientApplication(
-        Config.CLIENT_ID, authority=authority or Config.AUTHORITY,
-        client_credential=Config.CLIENT_SECRET, token_cache=cache)
+    return msal.ConfidentialClientApplication(Config.APPLICATION_CLIENT_ID,
+                                              authority=authority or Config.AUTHORITY,
+                                              client_credential=Config.CLIENT_SECRET,
+                                              token_cache=cache)
 
 
 def _build_auth_url(authority=None, scopes=None, state=None):
@@ -87,3 +90,13 @@ def _build_auth_url(authority=None, scopes=None, state=None):
         scopes or [],
         state=state or str(uuid.uuid4()),
         redirect_uri=url_for('authorized', _external=True, _scheme='https'))
+
+def get_public_ip():
+    try:
+        # Make a request to an external service to get the public IP address
+        response = requests.get('https://api.ipify.org?format=json')
+        response.raise_for_status()  # Raise an exception for any HTTP errors
+        ip_data = response.json()
+        return ip_data["ip"]
+    except requests.RequestException as e:
+        return f"Error fetching IP: {e}"

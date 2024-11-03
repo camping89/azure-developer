@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Application",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/application.py",
+            "env": {
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1",
+                "SERVER_HOST": "localhost",
+                "SERVER_PORT": "5555"
+            },
+            "jinja": true,
+            "justMyCode": true
+        }
+    ]
+}

@@ -1,40 +1,41 @@
 import os
+from dotenv import load_dotenv
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+# Load environment variables from .env file
+# basedir = os.path.abspath(os.path.dirname(__file__))
+# load_dotenv(os.path.join(basedir, '.env'))
+load_dotenv()
 
 class Config(object):
-    SECRET_KEY = os.environ.get('UDACITY_SECRET_KEY')
+    SECRET_KEY = os.environ.get('USER_SECRET_KEY')
 
-    BLOB_ACCOUNT = os.environ.get('UDACITY_BLOB_ACCOUNT')
-    BLOB_CONNECTION_STRING = os.environ.get('UDACITY_BLOB_CONNECTION_STRING')
-    BLOB_CONTAINER = os.environ.get('UDACITY_BLOB_CONTAINER')
+    BLOB_ACCOUNT = os.environ.get('BLOB_ACCOUNT')
+    BLOB_CONNECTION_STRING = os.environ.get('BLOB_CONNECTION_STRING')
+    BLOB_CONTAINER = os.environ.get('BLOB_CONTAINER')
     
-    SQL_SERVER = os.environ.get('SQL_SERVER') or 'cms-db-vunt39.database.windows.net'
-    SQL_DATABASE = os.environ.get('SQL_DATABASE') or 'master-db'
-    SQL_USER_NAME = os.environ.get('UDACITY_SQL_USER_NAME')
-    SQL_PASSWORD = os.environ.get('UDACITY_SQL_PASSWORD')
-    # Below URI may need some adjustments for driver version, based on your OS, if running locally
-    SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://' + SQL_USER_NAME + '@' + SQL_SERVER + ':' + SQL_PASSWORD + '@' + SQL_SERVER + ':1433/' + SQL_DATABASE + '?driver=ODBC+Driver+17+for+SQL+Server'
+    SQL_SERVER = os.environ.get('SQL_SERVER')
+    SQL_DATABASE = os.environ.get('SQL_DATABASE')
+    SQL_USERNAME = os.environ.get('SQL_USERNAME')
+    SQL_PASSWORD = os.environ.get('SQL_PASSWORD')
+    
+    # SQLALCHEMY_DATABASE_URI = (
+    #     f"mssql+pyodbc://{SQL_USERNAME}:{SQL_PASSWORD}@{SQL_SERVER}/{SQL_DATABASE}?"
+    #     f"driver=ODBC+Driver+17+for+SQL+Server&"
+    #     f"TrustServerCertificate=yes&"
+    #     f"connection_timeout=30&"
+    #     f"encrypt=yes"
+    # )
+    
+    SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://' + SQL_USERNAME + '@' + SQL_SERVER + ':' + SQL_PASSWORD + '@' + SQL_SERVER + ':1433/' + SQL_DATABASE  + '?driver=ODBC+Driver+17+for+SQL+Server'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     ### Info for MS Authentication ###
-    ### As adapted from: https://github.com/Azure-Samples/ms-identity-python-webapp ###
-    # In your production app, Microsoft recommends you to use other ways to store your secret,
-    # such as KeyVault, or environment variable as described in Flask's documentation here:
-    # https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-environment-variables
-    CLIENT_SECRET = os.environ.get("UDACITY_CLIENT_SECRET")
+    CLIENT_SECRET = os.environ.get("USER_CLIENT_SECRET")
     if not CLIENT_SECRET:
         raise ValueError("Need to define CLIENT_SECRET environment variable")
 
-    AUTHORITY = "https://login.microsoftonline.com/common"  # For multi-tenant app, else put tenant name
-    # AUTHORITY = "https://login.microsoftonline.com/Enter_the_Tenant_Name_Here"
-
-    CLIENT_ID = "4e9f8d46-ac34-4bcc-8b71-805a315d4861"
-
-    REDIRECT_PATH = "/getAToken"  # Used to form an absolute URL; must match to app's redirect_uri set in AAD
-
-    # You can find the proper permission names from this document
-    # https://docs.microsoft.com/en-us/graph/permissions-reference
-    SCOPE = ["User.Read"] # Only need to read user profile for this app
-
-    SESSION_TYPE = "filesystem"  # Token cache will be stored in server-side session
+    AUTHORITY = os.environ.get('AUTHORITY', "https://login.microsoftonline.com/common")
+    APP_CLIENT_ID = os.environ.get('APP_CLIENT_ID')
+    REDIRECT_PATH = os.environ.get('REDIRECT_PATH', "/getAToken")
+    SCOPE = ["User.Read"]
+    SESSION_TYPE = "filesystem"

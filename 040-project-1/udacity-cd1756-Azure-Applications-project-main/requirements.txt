@@ -30,3 +30,5 @@ SQLAlchemy==2.0.25
 urllib3==2.2.0
 Werkzeug==3.0.1
 WTForms==3.1.2
+python-dotenv
+pyOpenSSL

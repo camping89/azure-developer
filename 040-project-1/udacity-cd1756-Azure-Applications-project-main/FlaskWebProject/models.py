@@ -39,6 +39,7 @@ class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150))
+    subtitle = db.Column(db.String(200))
     author = db.Column(db.String(75))
     body = db.Column(db.String(800))
     image_path = db.Column(db.String(100))
@@ -50,6 +51,7 @@ class Post(db.Model):
 
     def save_changes(self, form, file, user_id, new=False):
         self.title = form.title.data
+        self.subtitle = form.subtitle.data
         self.author = form.author.data
         self.body = form.body.data
         self.user_id = user_id
@@ -84,3 +86,43 @@ class Post(db.Model):
             db.session.add(self)
 
         db.session.commit()
+
+    def delete(self):
+        try:
+            # Delete associated image if it exists
+            if self.image_path:
+                blob_client = blob_service.get_blob_client(container=blob_container, blob=self.image_path)
+                try:
+                    if blob_client.exists():
+                        blob_client.delete_blob()
+                except Exception:
+                    # Ignore deletion failures for blob
+                    pass
+            
+            # Delete the post from database
+            db.session.delete(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            flash(str(e))
+            return False
+
+    def remove_image(self, should_commit=True):
+        try:
+            if self.image_path:
+                blob_client = blob_service.get_blob_client(container=blob_container, blob=self.image_path)
+                try:
+                    if blob_client.exists():
+                        blob_client.delete_blob()
+                except Exception:
+                    # Ignore deletion failures
+                    pass
+                
+                self.image_path = None
+                if should_commit:
+                    db.session.commit()
+                return True
+
+        except Exception as e:
+            flash(str(e))
+            return False

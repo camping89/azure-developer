@@ -8,6 +8,7 @@
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Title</th>
+                    <th scope="col">Subtitle</th>
                     <th scope="col">Author</th>
                     <th scope="col">Has Image?</th>
                     <th scope="col" />
@@ -19,9 +20,40 @@
             <tr>
                 <th scope="row">{{ post.id }} </th>
                 <td>{{ post.title }}</td>
+                <td>{{ post.subtitle }}</td>
                 <td>{{ post.author }}</td>
                 <td>{{ post.image_path != None }}</td>
-                <td><a href="{{ url_for('post', id=post.id) }}">Edit Post</a></td>
+                <td>
+                    <a href="{{ url_for('post', id=post.id) }}" class="btn btn-primary btn-sm">Edit Post</a>
+                    <form action="{{ url_for('delete_post', id=post.id) }}" method="post" style="display: inline;">
+                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal{{ post.id }}">
+                            Delete Post
+                        </button>
+                    </form>
+                    
+                    <!-- Delete Confirmation Modal -->
+                    <div class="modal fade" id="deleteModal{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ post.id }}">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <h4 class="modal-title" id="deleteModalLabel{{ post.id }}">Confirm Delete</h4>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete "{{ post.title }}"? This action cannot be undone.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                    <form action="{{ url_for('delete_post', id=post.id) }}" method="post" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
             </tr>
             {% endfor %}
         </table>

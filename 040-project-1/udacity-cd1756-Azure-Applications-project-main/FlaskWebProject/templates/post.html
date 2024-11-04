@@ -4,12 +4,20 @@
 <h1>{{ title }}</h1>
 <form action="" method="post" novalidate enctype="multipart/form-data">
     {{ form.hidden_tag() }}
+    {{ form.id() }}
     <div class="row">
         <div class="col-sm-4">
             <p>
                 {{ form.title.label }}<br>
                 {{ form.title(size=64) }}
                 {% for error in form.title.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.subtitle.label }}<br>
+                {{ form.subtitle(size=64) }}
+                {% for error in form.subtitle.errors %}
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </p>
@@ -27,20 +35,55 @@
                 <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </p>
-            <p>{{ form.submit() }}</p>
+            <div class="btn-group" role="group">
+                {{ form.submit(class="btn btn-primary") }}
+                {% if not is_new_post %}
+                <form action="{{ url_for('delete_post', id=form.id.data) }}" method="post" style="display: inline;">
+                    <input type="submit" value="Delete Post" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this post?');">
+                </form>
+                {% endif %}
+            </div>
         </div>
         <div class="col-sm-4">
             {% if form.image_path.data %}
             <p><img src="{{ imageSource + form.image_path.data }}" width="250" height="250" /></p>
+            <form action="{{ url_for('remove_image', id=form.id.data) }}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-warning">Remove Image</button>
+            </form>
             {% endif %}
             <p>
                 {{ form.image_path.label }}<br>
                 {{ form.image_path }}
                 {% for error in form.image_path.errors %}
-                <span style="color: red;">{{ error.join(form.image_path.errors) }}</span>
+                <span style="color: red;">[{{ error }}]</span>
                 {% endfor %}
             </p>
         </div>
     </div>
 </form>
+
+{% if not is_new_post %}
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="deleteModalLabel">Confirm Delete</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this post? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('delete_post', id=form.id.data) }}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

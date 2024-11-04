@@ -41,14 +41,14 @@ def new_post():
         'post.html',
         title='Create Post',
         imageSource=imageSourceUrl,
-        form=form
+        form=form,
+        is_new_post=True
     )
-
 
 @app.route('/post/<int:id>', methods=['GET', 'POST'])
 @login_required
 def post(id):
-    post = Post.query.get(int(id))
+    post = Post.query.get_or_404(int(id))
     form = PostForm(formdata=request.form, obj=post)
     if form.validate_on_submit():
         post.save_changes(form, request.files['image_path'], current_user.id)
@@ -58,7 +58,8 @@ def post(id):
         'post.html',
         title='Edit Post',
         imageSource=imageSourceUrl,
-        form=form
+        form=form,
+        is_new_post=False
     )
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -148,3 +149,19 @@ def _build_auth_url(authority=None, scopes=None, state=None):
         scopes or [],
         state=state or str(uuid.uuid4()),
         redirect_uri=url_for('authorized', _external=True, _scheme='https'))
+
+@app.route('/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_post(id):
+    post = Post.query.get_or_404(int(id))
+    if post.delete():
+        flash('Post deleted successfully.')
+    return redirect(url_for('home'))
+
+@app.route('/remove_image/<int:id>', methods=['POST'])
+@login_required
+def remove_image(id):
+    post = Post.query.get_or_404(int(id))
+    if post.remove_image():
+        flash('Image removed successfully.')
+    return redirect(url_for('post', id=id))

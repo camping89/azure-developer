@@ -18,7 +18,11 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(256))
+    ms_id = db.Column(db.String(200), unique=True)  # Microsoft user ID
+    email = db.Column(db.String(120), unique=True)
+    name = db.Column(db.String(120))
+    is_microsoft_auth = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -28,6 +32,25 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    @staticmethod
+    def generate_random_password():
+        # Generate a random string for Microsoft-authenticated users
+        return ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+
+    @classmethod
+    def create_microsoft_user(cls, ms_id, email, name):
+        user = cls(
+            username=email,
+            ms_id=ms_id,
+            email=email,
+            name=name,
+            is_microsoft_auth=True
+        )
+        # Set a random password for Microsoft users
+        random_password = user.generate_random_password()
+        user.set_password(random_password)
+        return user
 
 
 @login.user_loader

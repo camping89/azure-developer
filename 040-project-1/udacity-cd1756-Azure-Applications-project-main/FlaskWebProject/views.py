@@ -25,7 +25,8 @@ def home():
     return render_template(
         'index.html',
         title='Home Page',
-        posts=posts
+        posts=posts,
+        user=user
     )
 
 @app.route('/new_post', methods=['GET', 'POST'])
@@ -87,12 +88,12 @@ def login():
     
     return render_template('login.html', title='Sign In', form=form, auth_url=auth_url)
 
-@app.route(Config.REDIRECT_PATH)  # Its absolute URL must match your app's redirect_uri set in AAD
+@app.route(Config.REDIRECT_PATH)
 def authorized():
     if request.args.get('state') != session.get("state"):
-        return redirect(url_for("home"))  # No-OP. Goes back to Index page
+        return redirect(url_for("home"))
     
-    if "error" in request.args:  # Authentication/Authorization failure
+    if "error" in request.args:
         return render_template("auth_error.html", result=request.args)
     
     if request.args.get('code'):
@@ -106,9 +107,20 @@ def authorized():
             return render_template("auth_error.html", result=result)
         
         session["user"] = result.get("id_token_claims")
-        # Note: In a real app, we'd use the 'name' property from session["user"] below
-        # Here, we'll use the admin username for anyone who is authenticated by MS
-        user = User.query.filter_by(username="admin").first()
+        
+        # Get user information from Microsoft
+        ms_id = session["user"].get("oid")
+        email = session["user"].get("preferred_username")
+        name = session["user"].get("name", email)
+        
+        # Check if user exists
+        user = User.query.filter_by(ms_id=ms_id).first()
+        if not user:
+            # Create new user using the class method
+            user = User.create_microsoft_user(ms_id, email, name)
+            db.session.add(user)
+            db.session.commit()
+        
         login_user(user)
         _save_cache(cache)
         
